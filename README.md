@@ -36,6 +36,12 @@ class MyClassBasedView(TemplateView):
 
 ## Standard Installation
 
+Install from PyPi:
+
+```python
+python -m pip install django-thumbmark
+```
+
 Add `django_thumbmark` to your `INSTALLED_APPS`:
 
 ```python
