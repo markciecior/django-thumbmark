@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html lang="en-us" dir="ltr">
+<head>
+    <noscript>
+        <div class="no-js-message">
+            {% block no-js-message %}JavaScript is disabled in your browser. Please enable it to use this site fully.{% endblock %}
+        </div>
+    </noscript>
+    <script>
+        document.body.classList.add('js-enabled');
+    </script>
+    <style>
+        .no-js-message {
+            display: block; /* Visible by default */
+        }
+        .js-enabled .no-js-message {
+            display: none; /* Hidden when JavaScript is enabled */
+        }
+    </style>
+    {% block js-source %}<script src="https://cdn.jsdelivr.net/npm/@thumbmarkjs/thumbmarkjs/dist/thumbmark.umd.js"></script>{% endblock %}
+    {% block js-script %}<script data-tmurl="{{ tm_url }}">
+        const passed_data = document.currentScript.dataset;
+        const tmurl = passed_data.tmurl
+        ThumbmarkJS.getFingerprint().then(
+            function(fp) {{
+                url = tmurl + '?tmid=' + fp;
+                fetch(url)
+                  .then(response => response.json())
+                  .then(data => {
+                        if (data.url){
+                            console.log('redirecting to: ' + data.url)
+                            window.location.href = data.url;
+                        }
+                        else {
+                            console.log('response is: ' + response)
+                        }
+                    })
+                  .catch(error => {
+                    console.error(error);
+                  });
+            }}
+        );
+        </script>{% endblock %}
+</head>
+<body>
+
+</body>
