@@ -1,15 +1,19 @@
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model, login
-from django.urls import reverse, resolve
+from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
+
+from django_thumbmark.conf import get_namespace
 
 
 class DjTmScriptView(View):
-    def get(self, request):
+    def post(self, request):
         next = request.session.get("next")
         if not request.user.is_authenticated:
-            tmid = request.GET.get("tmid")
+            tmid = request.POST.get("tmid")
             user = self.get_user_object(request, tmid=tmid)
             login(request, user)
         return JsonResponse({"url": next})
@@ -38,17 +42,16 @@ class DjTmScriptView(View):
         return "User"
 
 
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class DjTmLoginView(TemplateView):
     template_name = "django_thumbmark/login.html"
 
     def get(self, request, *args, **kwargs):
         next = request.GET.get("next")
         request.session["next"] = next
-        kwargs["path"] = request.path
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        path = kwargs["path"]
-        context["tm_url"] = reverse(f"{resolve(path).namespace}:tm")
+        context["tm_url"] = reverse(f"{get_namespace()}:tm")
         return context
