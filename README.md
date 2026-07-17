@@ -61,6 +61,26 @@ urlpatterns = [
     # ...
     path("thumbmark/", include("django_thumbmark.urls")),
 ]
+
+# project/views.py
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views import View
+
+from django_thumbmark.decorators import login_required_thumbmark
+
+@login_required_thumbmark
+def index(request):
+    # Do the thing with your now logged-in user
+    return HttpResponse(f"Hello, {request.user}")
+
+### --- or, for a class-based view --- ###
+
+@method_decorator(login_required_thumbmark, name="dispatch")
+class IndexView(View):
+    def get(self, request):
+        # Do the thing with your now logged-in user
+        return HttpResponse(f"Hello, {request.user}")
 ```
 
 The path prefix (`"thumbmark/"` above) is up to you and doesn't need to match anything; `login_required_thumbmark` finds the `tm`/`tmlogin` views by namespace (see [Custom Namespace](#custom-namespace) below), not by path, so it works no matter which app or namespace your protected views live in.
@@ -107,6 +127,26 @@ urlpatterns = [
     # ...
     path("thumbmark/", include("myapp.urls")),
 ]
+
+# project/views.py
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views import View
+
+from django_thumbmark.decorators import login_required_thumbmark
+
+@login_required_thumbmark
+def index(request):
+    # Do the thing with your now logged-in user
+    return HttpResponse(f"Hello, {request.user}")
+
+### --- or, for a class-based view --- ###
+
+@method_decorator(login_required_thumbmark, name="dispatch")
+class IndexView(View):
+    def get(self, request):
+        # Do the thing with your now logged-in user
+        return HttpResponse(f"Hello, {request.user}")
 ```
 
 To modify the included HTML template, overwrite the ```django_thumbmark/login.html``` template within your app's templates directory.
