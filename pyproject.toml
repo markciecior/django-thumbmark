@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.3"
 dependencies = [
     "django>=4.2",
 ]
-license = {text = "MIT"}
+license = "MIT"
 description = "A Django app to transparently identify users with the ThumbmarkJS library."
 readme = "README.md"
 requires-python = ">= 3.10"
@@ -23,7 +23,6 @@ classifiers = [
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
