@@ -1,15 +1,17 @@
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model, login
 from django.urls import reverse, resolve
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 
 
 class DjTmScriptView(View):
-    def get(self, request):
+    def post(self, request):
         next = request.session.get("next")
         if not request.user.is_authenticated:
-            tmid = request.GET.get("tmid")
+            tmid = request.POST.get("tmid")
             user = self.get_user_object(request, tmid=tmid)
             login(request, user)
         return JsonResponse({"url": next})
@@ -38,6 +40,7 @@ class DjTmScriptView(View):
         return "User"
 
 
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class DjTmLoginView(TemplateView):
     template_name = "django_thumbmark/login.html"
 

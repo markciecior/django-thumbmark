@@ -169,15 +169,18 @@ By default, if the browser doesn't have JavaScript enabled, a static text string
 
 ### ThumbmarkJS Source
 
-By default the [ThumbmarkJS](https://github.com/thumbmarkjs/thumbmarkjs) library is loaded from cdn.jsdelivr.net.  This can be changed (to reference a static, self-hosted copy or similar) by overwriting the ```django_thumbprint/login.html``` template and modifying this block:
+By default the [ThumbmarkJS](https://github.com/thumbmarkjs/thumbmarkjs) library is loaded from cdn.jsdelivr.net, pinned to a specific released version.  This can be changed (to reference a static, self-hosted copy, or a newer/older pinned version) by overwriting the ```django_thumbprint/login.html``` template and modifying this block:
 
 ```html
-{% block js-source %}<script src="https://cdn.jsdelivr.net/npm/@thumbmarkjs/thumbmarkjs/dist/thumbmark.umd.js"></script>{% endblock %}
+{% block js-source %}<script src="https://cdn.jsdelivr.net/npm/@thumbmarkjs/thumbmarkjs@1.10.0/dist/thumbmark.umd.js"></script>{% endblock %}
 ```
+
+> [!IMPORTANT]
+> The URL is pinned to a specific ThumbmarkJS release on purpose. Loading an unpinned/`@latest` URL means an upstream release can change behavior (or break the API used in `js-script` below) without warning. If you override this block, pin a version here too.
 
 ### ThumbmarkJS Script
 
-By default the [ThumbmarkJS](https://github.com/thumbmarkjs/thumbmarkjs) script is run using [this example](https://github.com/thumbmarkjs/thumbmarkjs?tab=readme-ov-file#and-on-the-web-page) from its homepage.  The contents of that script can be changed by overwriting the ```django_thumbprint/login.html template``` and modifying this block:
+By default the [ThumbmarkJS](https://github.com/thumbmarkjs/thumbmarkjs) script is run using the `new ThumbmarkJS.Thumbmark().get()` pattern documented in that project's README.  The contents of that script can be changed by overwriting the ```django_thumbprint/login.html template``` and modifying this block:
 
 ```html
 {% block js-script %}<script>console.log('This is my new script')</script>{% endblock %}
