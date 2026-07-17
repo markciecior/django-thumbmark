@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3] - 2026-07-17
 
+### Added
+
+- A `unittest`-based test suite (runnable via `python manage.py test`), covering `DjTmScriptView`, `DjTmLoginView`, and `login_required_thumbmark`. A `test.yml` GitHub Actions workflow runs it across the supported Python/Django matrix on every push/PR, and the release workflow (`publish.yml`) now runs it as a required step before publishing to PyPI.
+
 ### Security
 
 - The `tm` endpoint now requires a `POST` request with a valid CSRF token instead of `GET`. Previously, an unauthenticated `GET` to `tm/?tmid=<value>` would log in (creating the account if needed) using the attacker-controlled `tmid` as the username, with no CSRF protection — allowing a third-party page to force-login a visitor into an arbitrary or attacker-chosen account. **Breaking change** for any downstream project that called the `tm` endpoint directly via `GET`; the documented integration (the bundled `login.html`/`base.html`) is unaffected.
