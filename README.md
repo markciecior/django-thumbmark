@@ -51,28 +51,23 @@ INSTALLED_APPS = [
 ]
 ```
 
-To use the app as written (without customization) add these two views in your app's ```urls.py``` file.
-
-> [!IMPORTANT]
-> The names of these two URLs __must__ be ```tm``` and ```tmlogin``` as shown.
+To use the app as written (without customization), `include` its URLs in your project's ```urls.py``` file, the same way you would for any other reusable Django app:
 
 ```python
-# myapp/urls.py
-from django_thumbmark.views import DjTmLoginView, DjTmScriptView
+# project/urls.py
+from django.urls import include, path
 
 urlpatterns = [
     # ...
-    path("tm/", DjTmScriptView.as_view(), name="tm"),
-    path("login/", DjTmLoginView.as_view(), name="tmlogin"),
+    path("thumbmark/", include("django_thumbmark.urls")),
 ]
 ```
 
+The path prefix (`"thumbmark/"` above) is up to you and doesn't need to match anything; `login_required_thumbmark` finds the `tm`/`tmlogin` views by namespace (see [Custom Namespace](#custom-namespace) below), not by path, so it works no matter which app or namespace your protected views live in.
+
 ## Installation with Customizations
 
-To use the app with customization, overwrite the included DjTmScriptView as needed.  Then add this modified DjTmScriptView *and* the included DjTmLoginView to your app-specific ```urls.py``` file.
-
-> [!IMPORTANT]
-> The names of these two URLs in your app-specific ```urls.py``` file __must__ be ```tm``` and ```tmlogin``` as shown.
+To use the app with customization, overwrite the included `DjTmScriptView` as needed, then include *both* it and the stock `DjTmLoginView` from your own `urls.py` module. That module needs `app_name = "django_thumbmark"` (or a matching [`THUMBMARK_NAMESPACE`](#custom-namespace)) so `login_required_thumbmark` can still find it, and the URL names must still be `tm` and `tmlogin`.
 
 ```python
 # myapp/views.py
@@ -92,13 +87,25 @@ from django.utils import timezone # ... as an example of customized usage
 
 
 # myapp/urls.py
+from django.urls import path
+
 from myapp import views
 from django_thumbmark.views import DjTmLoginView
 
+app_name = "django_thumbmark"  # must match THUMBMARK_NAMESPACE (default shown here)
+
 urlpatterns = [
-    # ...
     path("tm/", views.MyDjTmScriptView.as_view(), name="tm"), # The URL name is "tm"
     path("login/", DjTmLoginView.as_view(), name="tmlogin"), # The URL name is "tmlogin"
+]
+
+
+# project/urls.py
+from django.urls import include, path
+
+urlpatterns = [
+    # ...
+    path("thumbmark/", include("myapp.urls")),
 ]
 ```
 
@@ -139,7 +146,7 @@ The options with which this overwritten template file can be modified are shown 
 When a view uses this decorator
 1) If the user is already authenticated, nothing happens.
 2) If the user hasn't been authenticated they are redirected to a new login page named ```tmlogin```.  This login page contains the [ThumbmarkJS](https://github.com/thumbmarkjs/thumbmarkjs) script to generate a unique ID.
-3) The unique ID is sent by Javascript via a GET request to a second view named ```tm```.
+3) The unique ID is sent by Javascript via a POST request (with a CSRF token) to a second view named ```tm```.
 4) The second view uses the unique ID to search for an existing User object.  A new User object is created if no object is found.
 5) The user is logged in and associated with the request.
 6) The user is redirected back to their original page.
@@ -158,6 +165,15 @@ By default, if a new User object is created, the username is set to the unique I
 ### New User Object
 
 By default, Django's ```get_or_create()``` function is used to find/create a User object directly, which is then logged in and associated with the request.  To modify how that user is discovered and/or created, you can overwrite the ```DjTmScriptView.get_user_object_()``` function.
+
+### Custom Namespace
+
+`login_required_thumbmark` and `DjTmLoginView` locate the `tm`/`tmlogin` views by URL namespace, not by path — this is what lets protected views live anywhere in your project regardless of which app or namespace they're in. By default that namespace is `django_thumbmark`, matching the `app_name` set in `django_thumbmark/urls.py`. If you `include()` those URLs under a different namespace (or provide your own `urls.py` with a different `app_name`, per the customization example above), set:
+
+```python
+# settings.py
+THUMBMARK_NAMESPACE = "my-custom-namespace"
+```
 
 ### JavaScript Disabled Output
 

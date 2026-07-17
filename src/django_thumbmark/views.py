@@ -1,10 +1,12 @@
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model, login
-from django.urls import reverse, resolve
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
+
+from django_thumbmark.conf import get_namespace
 
 
 class DjTmScriptView(View):
@@ -47,11 +49,9 @@ class DjTmLoginView(TemplateView):
     def get(self, request, *args, **kwargs):
         next = request.GET.get("next")
         request.session["next"] = next
-        kwargs["path"] = request.path
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        path = kwargs["path"]
-        context["tm_url"] = reverse(f"{resolve(path).namespace}:tm")
+        context["tm_url"] = reverse(f"{get_namespace()}:tm")
         return context

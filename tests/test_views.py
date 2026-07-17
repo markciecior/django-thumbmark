@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 
 UserModel = get_user_model()
 
@@ -85,3 +85,18 @@ class LoginRequiredThumbmarkDecoratorTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode(), "protected content")
+
+
+@override_settings(
+    ROOT_URLCONF="tests.custom_namespace_urls",
+    THUMBMARK_NAMESPACE="custom-thumbmark",
+)
+class ThumbmarkNamespaceSettingTests(TestCase):
+    def test_login_redirect_and_tm_url_use_configured_namespace(self):
+        response = self.client.get("/protected/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login/?next=/protected/")
+
+        login_response = self.client.get(response.url)
+        self.assertEqual(login_response.status_code, 200)
+        self.assertIn(b'data-tmurl="/tm/"', login_response.content)
